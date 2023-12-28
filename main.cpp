@@ -15,8 +15,8 @@ int main(int argc, char **argv)
 {
     igris::cliopts cli;
 
-    cli.add_string("port", 'p', "serial port");
-    cli.add_string("baudrate", 'b', "baudrate");
+    cli.add_string("port", 'p', "/dev/ttyS0");
+    cli.add_string("baudrate", 'b', "115200");
     cli.add_string("parity", 'P', "N");
     cli.add_string("stopbits", 's', "1");
     cli.add_string("databits", 'd', "8");
@@ -39,7 +39,13 @@ int main(int argc, char **argv)
     auto stopbits = std::stoi(stopbits_str);
     auto databits = std::stoi(databits_str);
 
-    nos::serial_port serial(port.c_str(), baudrate, parity, stopbits, databits);
+    nos::serial_port serial;
+    int ret = serial.open(port.c_str(), baudrate, parity, stopbits, databits);
+
+    if (ret < 0)
+    {
+        nos::println("error when serial openned");
+    }
 
     std::thread listen_thread([&serial]() {
         char buf[128];
